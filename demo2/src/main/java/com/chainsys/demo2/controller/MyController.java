@@ -11,13 +11,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.chainsys.demo2.DAO.UserDAO;
 import com.chainsys.demo2.DAO.UserDAOImpl;
 import com.chainsys.demo2.model.User;
 
 @Controller
 public class MyController {
     @Autowired
-    UserDAOImpl userDAOImpl;
+    UserDAO userDAOImpl;
 
     @RequestMapping("/home")
     public String home() {
@@ -77,7 +78,7 @@ public class MyController {
     }
 
     @GetMapping("searchUser")
-    public String searchUser(@RequestParam("name") String name, Model model) throws SQLException {
+    public String searchUser(@RequestParam("name") String name, Model model)  {
         List<User> users = userDAOImpl.findUsersByName(name);
         model.addAttribute("users", users);
         return "viewUsers.jsp";

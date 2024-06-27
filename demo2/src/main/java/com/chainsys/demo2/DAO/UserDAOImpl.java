@@ -1,6 +1,5 @@
 package com.chainsys.demo2.DAO;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +11,10 @@ import com.chainsys.demo2.model.User;
 import com.chainsys.demo2.mapper.UserDetailsMapper;
 
 @Repository
-public class UserDAOImpl {
+public class UserDAOImpl implements UserDAO {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
-	public void insertUser(User user) throws ClassNotFoundException,SQLException {
+	public void insertUser(User user)  {
 		String save="insert into user(name,age,mobile_no,gender,address) values(?,?,?,?,?)";
 		Object[] params= {user.getUserName(),user.getAge(),user.getMobileNo(),user.getGender(),user.getAddress()};
 		int rows=jdbcTemplate.update(save, params);
@@ -23,31 +22,33 @@ public class UserDAOImpl {
 	}
 
 	public List<User> listUsers(){
-		String view="select*from user";
+		String view="select id,name,age,mobile_no,gender,address from user where is_active=0";
 		List<User> list=jdbcTemplate.query(view,new UserDetailsMapper());
 		return list;
 		
 	}
 	
-	public void deleteUser(int id) throws SQLException {
-        String delete = "delete from user where id = ?";
+	public void deleteUser(int id) {
+        String delete = "update user set is_active=1 where id=?";
         jdbcTemplate.update(delete, id);
     }
 
-	 public User findUserById(int id) throws SQLException {
-	        String query = "select * from user where id = ?";
+	 public User findUserById(int id) {
+	        String query = "select id,name,age,mobile_no,gender,address from user where id = ?";
 	        return jdbcTemplate.queryForObject(query, new UserDetailsMapper(), id);
 	    }
 
-    public void updateUser(User user) throws SQLException {
-        String update = "update user set name = ?, age = ?, gender = ?, address = ? where mobile_no = ?";
-        Object[] params = {user.getUserName(), user.getAge(), user.getGender(), user.getAddress(), user.getMobileNo()};
+    public void updateUser(User user){
+        String update = "update user set name = ?, age = ?, gender = ?, address = ? ,mobile_no=? where id = ?";
+        Object[] params = {user.getUserName(), user.getAge(), user.getGender(), user.getAddress(), user.getMobileNo(),user.getId()};
         jdbcTemplate.update(update, params);
     }
 	
-    public List<User> findUsersByName(String name) throws SQLException {
-        String query = "select * from user where name like ?";
-        List<User> users = jdbcTemplate.query(query, new Object[]{"%" + name + "%"}, new UserDetailsMapper());
+    public List<User> findUsersByName(String name){
+        String query = "select id,name,age,mobile_no,gender,address from user where name like ?";
+        List<User> users = jdbcTemplate.query(query,new UserDetailsMapper(), "%" + name + "%" );
         return users;
     }
+    
+    
 }
